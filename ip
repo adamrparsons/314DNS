@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ADD="`cat /sys/class/net/eth0/address`"
+IP="$(ifconfig | awk '/inet addr/{print substr($2,6)}' | grep 134)"
+
+echo "$1,$ADD" >> list.csv
+echo "$1,$ADD,$IP" >> sicklist.csv
+
