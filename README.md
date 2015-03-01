@@ -1,4 +1,4 @@
-## LABDNS
+## 314DNS aka "I can't believe it's not DNS!"
 
 ### What is this
 
