@@ -1,39 +1,50 @@
 #! /bin/bash
 
-rm labdns/alive > /dev/null
+rm ~/.314dns/alive 2> /dev/null
+touch ~/.314dns/alive
 
 ## Ping the subnet and determine what IP's are alive
 ## Afterwards we can use this information to further determine which of those
 ## alive IP's belong to student Lab machines
 
-	echo "Pinging all IP's in given range"
+	echo "Pinging all IP's in given range..."
 	for a in {134..134} ;do \
 	for b in {7..7} ;do \
 	for c in {44..47} ;do \
-	## C'mon, only fork 255 processes at a time pls, anything else is just rude,
+	## C'mon, only fork 255 processes at a time pls, 
+	## anything else is just rude,
 	## and will likely give you a RESOURCE BUSY
 		sleep 1
 		for d in {0..255} ;do \
-			(ping $a.$b.$c.$d -c 1 -w 1 > /dev/null && echo $a.$b.$c.$d >> labdns/alive &)
+			(ping $a.$b.$c.$d -c 1 -w 1 > /dev/null && echo $a.$b.$c.$d >> ~/.314dns/alive &)
 
 	done; done; done; done;
 
+	## Give the processes time to finish
 	sleep 1
-	cat labdns/alive | sort > labdns/sortedalive
-	COUNT="$(cat labdns/alive | grep -c 134)" 
+
+	## Sort the results, they will come somewhat randomly otherwise
+	echo "Sorting results by IP..."
+	cat ~/.314dns/alive | sort > ~/.314dns/sortedalive
+	COUNT="$(cat ~/.314dns/alive | grep -c 134)"
+	echo "Done sorting" 
 	echo "$COUNT hosts alive"
+	sleep 1
 
-	echo "Checking which are lab machines"
+	echo "Checking which are lab machines...This may take some time....."
+	echo "Ensure that you have cleared your ~/.ssh/known_hosts if you have issues here with BREAK-IN ATTEMPT errors"
+	echo "You have 5 seconds to ctrl-c if you do not have public key-auth set up"
+	sleep 5
 	##SORRY_NOTSORRY
-	##arp -a > arplist
-
-	FILE="labdns/sortedalive"
+	FILE="~/.314dns/sortedalive"
 	while read line; do
-		(ssh "$line" -o 'StrictHostKeyChecking no' '/bin/bash labdns/whatami.sh' &)
+		(ssh "$line" -o 'StrictHostKeyChecking no' '/bin/bash labdnsdns/whatami.sh' &)
+		printf "."
 	done < $FILE
+	printf "\n"
 
-	sleep 2
-	cat labdns/Results.csv | sort > labdns/SortedResults.csv
+	sleep 5
+	cat ~/.314dns/Results.csv | sort > ~/.314dns/SortedResults.csv
 
 exit
 
